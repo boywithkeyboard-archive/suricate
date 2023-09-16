@@ -1,12 +1,29 @@
 {
   "name": "@boywithkeyboard/suricate",
-  "version": "0.1.1",
+  "version": "0.1.2",
+  "author": "Samuel Kopp (https://samuelkopp.de)",
+  "license": "MIT",
+  "description": "A typesafe MongoDB Atlas client for JavaScript.",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
   "types": "./types/index.d.ts",
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./dist/index.esm.js"
+      },
+      "require": {
+        "types": "./types/index.d.ts",
+        "default": "./dist/index.cjs.js"
+      }
+    }
+  },
   "scripts": {
     "build:types": "tsc",
-    "build:cjs": "esbuild src/index.ts --bundle --minify --legal-comments=none --external:bson --external:mongodb --external:realm-web --format=cjs --outfile=dist/index.js",
-    "build": "rimraf ./types && npm run build:types && npm run build:cjs && deno fmt"
+    "build:cjs": "esbuild src/index.ts --bundle --minify --legal-comments=none --external:bson --external:mongodb --external:realm-web --format=cjs --platform=node --outfile=dist/index.cjs.js",
+    "build:esm": "esbuild src/index.ts --bundle --minify --legal-comments=none --external:bson --external:mongodb --external:realm-web --format=esm --outfile=dist/index.esm.js",
+    "build": "rimraf ./types && npm run build:types && npm run build:cjs && npm run build:esm && deno fmt"
   },
   "dependencies": {
     "bson": "^6.1.0",
