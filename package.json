@@ -1,0 +1,22 @@
+{
+  "name": "@boywithkeyboard/suricate",
+  "version": "0.1.0",
+  "types": "./types/index.d.ts",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build:types": "tsc",
+    "build:cjs": "esbuild src/index.ts --bundle --minify --legal-comments=none --external:bson --external:mongodb --external:realm-web --format=cjs --outfile=dist/index.js",
+    "build": "rimraf ./types && npm run build:types && npm run build:cjs && deno fmt"
+  },
+  "dependencies": {
+    "bson": "^6.1.0",
+    "mongodb": "^6.1.0",
+    "realm-web": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.1",
+    "esbuild": "^0.19.3",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.2.2"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "types",
+    "newLine": "lf",
+    "rootDir": "./src",
+    "moduleResolution": "nodenext",
+    "types": [
+      "@types/node"
+    ]
+  }
+}

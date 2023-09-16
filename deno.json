@@ -1,0 +1,10 @@
+{
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true,
+    "exclude": [
+      "dist/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}
