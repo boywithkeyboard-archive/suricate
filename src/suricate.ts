@@ -1,5 +1,5 @@
 import * as Realm from 'realm-web'
-import { ZodObject } from 'zod'
+import { ZodObject, ZodType } from 'zod'
 import { SuricateError } from './error'
 import { Scheme } from './scheme'
 import { Database, ErrorListener } from './types'
@@ -47,7 +47,7 @@ export class Suricate {
     this.#errorListener = func
   }
 
-  scheme = <T extends ZodObject<any>>(
+  scheme = <T extends Record<string, ZodType>>(
     scheme: T,
     collectionName: string,
   ) => {
