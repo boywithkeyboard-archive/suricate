@@ -1,4 +1,5 @@
 export { ObjectId } from 'bson'
+export { z as type } from 'zod'
 export { Suricate } from './suricate'
 export { Document } from './types'
 

@@ -1,24 +1,60 @@
-import { Filter, UpdateFilter } from 'mongodb'
+import { SafeParseError, ZodType } from 'zod'
 import { SuricateError } from './error'
-import { Collection, Database } from './types'
+import {
+  Collection,
+  Database,
+  ErrorListener,
+  Filter,
+  Infer,
+  UpdateFilter,
+} from './types'
 
-export class Scheme<T extends Record<string, unknown>> {
+export class Scheme<T extends Record<string, ZodType>> {
   #col: () => Collection<T>
+  #scheme: T
+  #getErrorListener: () => ErrorListener
 
   constructor(
     getDatabase: () => Database | null,
+    getErrorListener: () => ErrorListener,
+    scheme: T,
     collectionName: string,
   ) {
     this.#col = () => {
       const db = getDatabase()
 
       if (db === null) {
-        throw new SuricateError(
-          'Please establish a connection to the database first!',
-        )
+        this.#errorListener({
+          type: 'InitializationError',
+          message: 'Please establish a connection first!',
+        })
+
+        throw new SuricateError('Please establish a connection first!')
       }
 
       return db.collection(collectionName)
+    }
+
+    this.#getErrorListener = getErrorListener
+
+    this.#scheme = scheme
+  }
+
+  get #errorListener() {
+    return this.#getErrorListener()
+  }
+
+  #v(obj: Record<string, ZodType>) {
+    for (const key in obj) {
+      const data = this.#scheme[key].safeParse(obj[key])
+
+      if (!data.success) {
+        this.#errorListener({
+          type: 'ValidationError',
+          message: (data as SafeParseError<any>).error.message,
+          issues: (data as SafeParseError<any>).error.issues,
+        })
+      }
     }
   }
 
@@ -56,6 +92,8 @@ export class Scheme<T extends Record<string, unknown>> {
     update: UpdateFilter<T>,
     options?: Parameters<Collection<T>['findOneAndUpdate']>[2],
   ) => {
+    this.#v(update)
+
     const timestamp = new Date().toISOString()
 
     update = {
@@ -68,9 +106,11 @@ export class Scheme<T extends Record<string, unknown>> {
 
   findOneAndReplace = (
     filter: Filter<T>,
-    replacement: Omit<T, '_id' | 'createdAt' | 'updatedAt'>,
+    replacement: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>,
     options?: Parameters<Collection<T>['findOneAndReplace']>[2],
   ) => {
+    this.#v(replacement)
+
     const timestamp = new Date().toISOString()
 
     replacement = {
@@ -93,7 +133,9 @@ export class Scheme<T extends Record<string, unknown>> {
     return this.#col().findOneAndDelete(filter, options)
   }
 
-  insertOne = (document: Omit<T, '_id' | 'createdAt' | 'updatedAt'>) => {
+  insertOne = (document: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>) => {
+    this.#v(document)
+
     const timestamp = new Date().toISOString()
 
     document = {
@@ -107,7 +149,13 @@ export class Scheme<T extends Record<string, unknown>> {
     )
   }
 
-  insertMany = (...documents: Omit<T, '_id' | 'createdAt' | 'updatedAt'>[]) => {
+  insertMany = (
+    ...documents: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>[]
+  ) => {
+    for (const document of documents) {
+      this.#v(document)
+    }
+
     const timestamp = new Date().toISOString()
 
     documents = documents.map((document) => {
@@ -128,6 +176,8 @@ export class Scheme<T extends Record<string, unknown>> {
     update: UpdateFilter<T>,
     options?: Parameters<Collection<T>['updateOne']>[2],
   ) => {
+    this.#v(update)
+
     const timestamp = new Date().toISOString()
 
     update = {
@@ -143,6 +193,8 @@ export class Scheme<T extends Record<string, unknown>> {
     update: UpdateFilter<T>,
     options?: Parameters<Collection<T>['updateMany']>[2],
   ) => {
+    this.#v(update)
+
     const timestamp = new Date().toISOString()
 
     update = {

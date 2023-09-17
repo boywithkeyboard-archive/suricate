@@ -1,9 +1,20 @@
 import * as Realm from 'realm-web'
+import { ZodType } from 'zod'
+import { SuricateError } from './error'
 import { Scheme } from './scheme'
-import { Database } from './types'
+import { Database, ErrorListener } from './types'
 
 export class Suricate {
-  #db: Database | null = null
+  #db: Database | null
+  #errorListener: ErrorListener
+
+  constructor() {
+    this.#db = null
+
+    this.#errorListener = (data) => {
+      throw new SuricateError(data.message)
+    }
+  }
 
   connect = async (options: {
     app: string
@@ -26,9 +37,25 @@ export class Suricate {
     return this.#db
   }
 
-  createScheme = <T extends Record<string, unknown>>(
+  #getErrorListener() {
+    return this.#errorListener
+  }
+
+  addErrorListener(
+    func: ErrorListener,
+  ) {
+    this.#errorListener = func
+  }
+
+  scheme = <T extends Record<string, ZodType>>(
+    scheme: T,
     collectionName: string,
   ) => {
-    return new Scheme<T>(this.#getDatabase, collectionName)
+    return new Scheme<T>(
+      this.#getDatabase,
+      this.#getErrorListener,
+      scheme,
+      collectionName,
+    )
   }
 }
