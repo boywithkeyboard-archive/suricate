@@ -1,15 +1,14 @@
-import { SafeParseError, ZodType } from 'zod'
+import { infer as Infer, SafeParseError, ZodType } from 'zod'
 import { SuricateError } from './error'
 import {
   Collection,
   Database,
   ErrorListener,
   Filter,
-  Infer,
   UpdateFilter,
 } from './types'
 
-export class Scheme<T extends Record<string, ZodType>> {
+export class Scheme<T extends ZodType> {
   #col: () => Collection<T>
   #scheme: T
   #getErrorListener: () => ErrorListener
@@ -44,26 +43,20 @@ export class Scheme<T extends Record<string, ZodType>> {
     return this.#getErrorListener()
   }
 
-  #v(obj: Record<string, ZodType>) {
-    const _obj: any = {}
+  #v(d: unknown) {
+    const data = this.#scheme.safeParse(d)
 
-    for (const key in obj) {
-      const data = this.#scheme[key].safeParse(obj[key])
+    if (data.success) {
+      return data.data
+    } else {
+      this.#errorListener({
+        type: 'ValidationError',
+        message: (data as SafeParseError<any>).error.message,
+        issues: (data as SafeParseError<any>).error.issues,
+      })
 
-      if (data.success) {
-        _obj[key] = data.data
-      } else {
-        this.#errorListener({
-          type: 'ValidationError',
-          message: (data as SafeParseError<any>).error.message,
-          issues: (data as SafeParseError<any>).error.issues,
-        })
-
-        throw new SuricateError('Validation failed.')
-      }
+      throw new SuricateError('Validation failed.')
     }
-
-    return _obj
   }
 
   count = (
