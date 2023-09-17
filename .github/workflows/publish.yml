@@ -1,0 +1,54 @@
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: 'Kind of release'
+        default: 'minor'
+        type: choice
+        options:
+        - prepatch
+        - patch
+        - preminor
+        - minor
+        - premajor
+        - major
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - id: release
+        name: Publish release
+        uses: boywithkeyboard/publisher@v2
+        with:
+          kind: ${{github.event.inputs.kind}}
+
+      - name: Build package
+        run: npm i && npm run build
+
+      - name: Set version
+        run: |
+          version="${{ steps.publish.outputs.tag_name }}"
+          semver="${version:1}"
+          npm version $semver
+
+      - name: Publish package
+        uses: JS-DevTools/npm-publish@v2
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
