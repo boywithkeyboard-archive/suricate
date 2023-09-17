@@ -44,7 +44,7 @@ jobs:
 
       - name: Set version
         run: |
-          version="${{ steps.publish.outputs.tag_name }}"
+          version="${{ steps.release.outputs.tag_name }}"
           semver="${version:1}"
           npm version $semver
 
