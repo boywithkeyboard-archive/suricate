@@ -1,5 +1,5 @@
 export { ObjectId } from 'bson'
-export { z as type } from 'zod'
+export { type } from './field_types'
 export { Suricate } from './suricate'
 export { Document } from './types'
 
