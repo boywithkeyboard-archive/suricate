@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson'
 import { instanceof as _instanceof, string, ZodIssueCode } from 'zod'
 
-export { array, boolean, date, number, object, string, literal } from 'zod'
+export { array, boolean, date, number, object, string, literal, record } from 'zod'
 
 export const objectId = () => {
   return _instanceof(ObjectId).optional().or(

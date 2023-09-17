@@ -7,4 +7,4 @@ import { Suricate } from './suricate'
 
 const suricate = new Suricate()
 
-export default suricate
+export { suricate }
