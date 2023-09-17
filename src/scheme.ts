@@ -45,17 +45,25 @@ export class Scheme<T extends Record<string, ZodType>> {
   }
 
   #v(obj: Record<string, ZodType>) {
+    const _obj: any = {}
+
     for (const key in obj) {
       const data = this.#scheme[key].safeParse(obj[key])
 
-      if (!data.success) {
+      if (data.success) {
+        _obj[key] = data.data
+      } else {
         this.#errorListener({
           type: 'ValidationError',
           message: (data as SafeParseError<any>).error.message,
           issues: (data as SafeParseError<any>).error.issues,
         })
+
+        throw new SuricateError('Validation failed.')
       }
     }
+
+    return _obj
   }
 
   count = (
@@ -92,7 +100,7 @@ export class Scheme<T extends Record<string, ZodType>> {
     update: UpdateFilter<T>,
     options?: Parameters<Collection<T>['findOneAndUpdate']>[2],
   ) => {
-    this.#v(update)
+    update = this.#v(update)
 
     const timestamp = new Date().toISOString()
 
@@ -109,7 +117,7 @@ export class Scheme<T extends Record<string, ZodType>> {
     replacement: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>,
     options?: Parameters<Collection<T>['findOneAndReplace']>[2],
   ) => {
-    this.#v(replacement)
+    replacement = this.#v(replacement)
 
     const timestamp = new Date().toISOString()
 
@@ -134,7 +142,7 @@ export class Scheme<T extends Record<string, ZodType>> {
   }
 
   insertOne = (document: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>) => {
-    this.#v(document)
+    document = this.#v(document)
 
     const timestamp = new Date().toISOString()
 
@@ -152,8 +160,8 @@ export class Scheme<T extends Record<string, ZodType>> {
   insertMany = (
     ...documents: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>[]
   ) => {
-    for (const document of documents) {
-      this.#v(document)
+    for (let document of documents) {
+      document = this.#v(document)
     }
 
     const timestamp = new Date().toISOString()
@@ -176,7 +184,7 @@ export class Scheme<T extends Record<string, ZodType>> {
     update: UpdateFilter<T>,
     options?: Parameters<Collection<T>['updateOne']>[2],
   ) => {
-    this.#v(update)
+    update = this.#v(update)
 
     const timestamp = new Date().toISOString()
 
@@ -193,7 +201,7 @@ export class Scheme<T extends Record<string, ZodType>> {
     update: UpdateFilter<T>,
     options?: Parameters<Collection<T>['updateMany']>[2],
   ) => {
-    this.#v(update)
+    update = this.#v(update)
 
     const timestamp = new Date().toISOString()
 
