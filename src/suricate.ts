@@ -1,7 +1,7 @@
 import * as Realm from 'realm-web'
-import { ZodObject, ZodType } from 'zod'
+import { ZodType } from 'zod'
+import { Collection } from './collection'
 import { SuricateError } from './error'
-import { Scheme } from './scheme'
 import { Database, ErrorListener } from './types'
 
 export class Suricate {
@@ -47,11 +47,11 @@ export class Suricate {
     this.#errorListener = func
   }
 
-  scheme = <T extends Record<string, ZodType>>(
+  collection = <T extends Record<string, ZodType>>(
     scheme: T,
     collectionName: string,
   ) => {
-    return new Scheme<T>(
+    return new Collection<T>(
       this.#getDatabase,
       this.#getErrorListener,
       scheme,

@@ -1,16 +1,16 @@
-import { SafeParseError, ZodType } from 'https://deno.land/x/zod@v3.22.2/mod.ts'
-import { SuricateError } from './error.ts'
+import { SafeParseError, ZodType } from 'zod'
+import { SuricateError } from './error'
 import {
-  Collection,
   Database,
   ErrorListener,
   Filter,
   Infer,
+  MongoDBCollection,
   UpdateFilter,
-} from './types.ts'
+} from './types'
 
-export class Scheme<T extends Record<string, ZodType>> {
-  #col: () => Collection<T>
+export class Collection<T extends Record<string, ZodType>> {
+  #col: () => MongoDBCollection<T>
   #scheme: T
   #getErrorListener: () => ErrorListener
 
@@ -68,7 +68,7 @@ export class Scheme<T extends Record<string, ZodType>> {
 
   count = (
     filter: Filter<T>,
-    options?: Parameters<Collection<T>['count']>[1],
+    options?: Parameters<MongoDBCollection<T>['count']>[1],
   ) => {
     return this.#col().count(filter, options)
   }
@@ -83,14 +83,14 @@ export class Scheme<T extends Record<string, ZodType>> {
 
   find = (
     filter: Filter<T>,
-    options?: Parameters<Collection<T>['find']>[1],
+    options?: Parameters<MongoDBCollection<T>['find']>[1],
   ) => {
     return this.#col().find(filter, options)
   }
 
   findOne = (
     filter: Filter<T>,
-    options?: Parameters<Collection<T>['findOne']>[1],
+    options?: Parameters<MongoDBCollection<T>['findOne']>[1],
   ) => {
     return this.#col().findOne(filter, options)
   }
@@ -98,7 +98,7 @@ export class Scheme<T extends Record<string, ZodType>> {
   findOneAndUpdate = (
     filter: Filter<T>,
     update: UpdateFilter<T>,
-    options?: Parameters<Collection<T>['findOneAndUpdate']>[2],
+    options?: Parameters<MongoDBCollection<T>['findOneAndUpdate']>[2],
   ) => {
     update = this.#v(update)
 
@@ -115,7 +115,7 @@ export class Scheme<T extends Record<string, ZodType>> {
   findOneAndReplace = (
     filter: Filter<T>,
     replacement: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>,
-    options?: Parameters<Collection<T>['findOneAndReplace']>[2],
+    options?: Parameters<MongoDBCollection<T>['findOneAndReplace']>[2],
   ) => {
     replacement = this.#v(replacement)
 
@@ -129,14 +129,14 @@ export class Scheme<T extends Record<string, ZodType>> {
 
     return this.#col().findOneAndReplace(
       filter,
-      replacement as Parameters<Collection<T>['findOneAndReplace']>[1],
+      replacement as Parameters<MongoDBCollection<T>['findOneAndReplace']>[1],
       options,
     )
   }
 
   findOneAndDelete = (
     filter: Filter<T>,
-    options?: Parameters<Collection<T>['findOneAndDelete']>[1],
+    options?: Parameters<MongoDBCollection<T>['findOneAndDelete']>[1],
   ) => {
     return this.#col().findOneAndDelete(filter, options)
   }
@@ -153,7 +153,7 @@ export class Scheme<T extends Record<string, ZodType>> {
     }
 
     return this.#col().insertOne(
-      document as Parameters<Collection<T>['insertOne']>[0],
+      document as Parameters<MongoDBCollection<T>['insertOne']>[0],
     )
   }
 
@@ -175,14 +175,14 @@ export class Scheme<T extends Record<string, ZodType>> {
     })
 
     return this.#col().insertMany(
-      documents as Parameters<Collection<T>['insertMany']>[0],
+      documents as Parameters<MongoDBCollection<T>['insertMany']>[0],
     )
   }
 
   updateOne = (
     filter: Filter<T>,
     update: UpdateFilter<T>,
-    options?: Parameters<Collection<T>['updateOne']>[2],
+    options?: Parameters<MongoDBCollection<T>['updateOne']>[2],
   ) => {
     update = this.#v(update)
 
@@ -199,7 +199,7 @@ export class Scheme<T extends Record<string, ZodType>> {
   updateMany = (
     filter: Filter<T>,
     update: UpdateFilter<T>,
-    options?: Parameters<Collection<T>['updateMany']>[2],
+    options?: Parameters<MongoDBCollection<T>['updateMany']>[2],
   ) => {
     update = this.#v(update)
 

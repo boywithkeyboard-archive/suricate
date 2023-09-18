@@ -1,7 +1,7 @@
 import { ZodType } from 'https://deno.land/x/zod@v3.22.2/mod.ts'
 import * as Realm from 'https://esm.sh/realm-web@2.0.0?target=es2022'
+import { Collection } from './collection.ts'
 import { SuricateError } from './error.ts'
-import { Scheme } from './scheme.ts'
 import { Database, ErrorListener } from './types.ts'
 
 export class Suricate {
@@ -51,7 +51,7 @@ export class Suricate {
     scheme: T,
     collectionName: string,
   ) => {
-    return new Scheme<T>(
+    return new Collection<T>(
       this.#getDatabase,
       this.#getErrorListener,
       scheme,

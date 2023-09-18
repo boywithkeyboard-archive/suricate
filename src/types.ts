@@ -13,7 +13,7 @@ export type Document = {
 
 export type Infer<T extends Record<string, ZodType>> = ZodInfer<ZodObject<T>>
 
-export type Collection<T extends Record<string, ZodType>> =
+export type MongoDBCollection<T extends Record<string, ZodType>> =
   globalThis.Realm.Services.MongoDB.MongoDBCollection<Infer<T> & Document>
 
 export type Database = ReturnType<globalThis.Realm.Services.MongoDB['db']>
