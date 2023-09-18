@@ -8,7 +8,6 @@ export {
   literal,
   number,
   object,
-  object as createScheme,
   record,
   string,
 } from 'zod'
