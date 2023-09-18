@@ -1,5 +1,5 @@
 import { ObjectId } from 'bson'
-import {
+import type {
   Filter as MongoDBFilter,
   UpdateFilter as MongoDBUpdateFilter,
 } from 'mongodb'
