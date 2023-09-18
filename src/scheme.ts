@@ -10,46 +10,20 @@ import {
 
 export class Scheme<T extends Record<string, ZodType>> {
   #db: () => Promise<Database>
-  #scheme: T
   #name
 
   constructor(
     db: () => Promise<Database>,
-    scheme: T,
     collectionName: string,
   ) {
     this.#db = db
     this.#name = collectionName
-
-    this.#scheme = scheme
   }
 
   #col = async (): Promise<MongoDBCollection<T>> => {
     const db = await this.#db()
 
     return db.collection(this.#name)
-  }
-
-  #v(d: Record<string, unknown>) {
-    const res: any = {}
-
-    for (const key in this.#scheme) {
-      const data = this.#scheme[key].safeParse(d)
-
-      if (data.success) {
-        res[key] = data.data
-      } else {
-        // this.#errorListener({
-        //   type: 'ValidationError',
-        //   message: (data as SafeParseError<any>).error.message,
-        //   issues: (data as SafeParseError<any>).error.issues,
-        // })
-
-        throw new ValidationError((data as SafeParseError<any>).error.message)
-      }
-    }
-
-    return res
   }
 
   count = async (
@@ -86,8 +60,6 @@ export class Scheme<T extends Record<string, ZodType>> {
     update: UpdateFilter<T>,
     options?: Parameters<MongoDBCollection<T>['findOneAndUpdate']>[2],
   ) => {
-    update = this.#v(update)
-
     const timestamp = new Date().toISOString()
 
     update = {
@@ -103,8 +75,6 @@ export class Scheme<T extends Record<string, ZodType>> {
     replacement: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>,
     options?: Parameters<MongoDBCollection<T>['findOneAndReplace']>[2],
   ) => {
-    replacement = this.#v(replacement)
-
     const timestamp = new Date().toISOString()
 
     replacement = {
@@ -130,8 +100,6 @@ export class Scheme<T extends Record<string, ZodType>> {
   insertOne = async (
     document: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>,
   ) => {
-    document = this.#v(document)
-
     const timestamp = new Date().toISOString()
 
     document = {
@@ -148,10 +116,6 @@ export class Scheme<T extends Record<string, ZodType>> {
   insertMany = async (
     ...documents: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>[]
   ) => {
-    for (let document of documents) {
-      document = this.#v(document)
-    }
-
     const timestamp = new Date().toISOString()
 
     documents = documents.map((document) => {
@@ -172,8 +136,6 @@ export class Scheme<T extends Record<string, ZodType>> {
     update: UpdateFilter<T>,
     options?: Parameters<MongoDBCollection<T>['updateOne']>[2],
   ) => {
-    update = this.#v(update)
-
     const timestamp = new Date().toISOString()
 
     update = {
@@ -189,8 +151,6 @@ export class Scheme<T extends Record<string, ZodType>> {
     update: UpdateFilter<T>,
     options?: Parameters<MongoDBCollection<T>['updateMany']>[2],
   ) => {
-    update = this.#v(update)
-
     const timestamp = new Date().toISOString()
 
     update = {

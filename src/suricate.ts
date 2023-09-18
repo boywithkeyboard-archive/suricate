@@ -32,12 +32,10 @@ export class Suricate {
   }
 
   scheme = <T extends Record<string, ZodType>>(
-    scheme: T,
     collectionName: string,
   ) => {
     return new Scheme<T>(
       this.#db,
-      scheme,
       collectionName,
     )
   }
