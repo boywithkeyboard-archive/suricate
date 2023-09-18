@@ -1,6 +1,6 @@
 import * as Realm from 'realm-web'
 import { ZodType } from 'zod'
-import { Scheme } from './scheme'
+import { Collection } from './collection'
 import { Database } from './types'
 
 export class Suricate {
@@ -31,10 +31,10 @@ export class Suricate {
     return this.#d
   }
 
-  scheme = <T extends Record<string, ZodType>>(
+  collection = <T extends Record<string, ZodType>>(
     collectionName: string,
   ) => {
-    return new Scheme<T>(
+    return new Collection<T>(
       this.#db,
       collectionName,
     )

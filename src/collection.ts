@@ -1,5 +1,4 @@
-import { SafeParseError, ZodType } from 'zod'
-import { ValidationError } from './error'
+import { ZodType } from 'zod'
 import {
   Database,
   Filter,
@@ -8,7 +7,7 @@ import {
   UpdateFilter,
 } from './types'
 
-export class Scheme<T extends Record<string, ZodType>> {
+export class Collection<T extends Record<string, ZodType>> {
   #db: () => Promise<Database>
   #name
 
