@@ -1,13 +1,6 @@
-import { ZodType } from 'zod'
-import {
-  Database,
-  Filter,
-  Infer,
-  MongoDBCollection,
-  UpdateFilter,
-} from './types'
+import { Database, Filter, MongoDBCollection, UpdateFilter } from './types'
 
-export class Collection<T extends Record<string, ZodType>> {
+export class Collection<T extends Record<string, unknown>> {
   #db: () => Promise<Database>
   #name
 
@@ -71,7 +64,7 @@ export class Collection<T extends Record<string, ZodType>> {
 
   findOneAndReplace = async (
     filter: Filter<T>,
-    replacement: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>,
+    replacement: Omit<T, '_id' | 'createdAt' | 'updatedAt'>,
     options?: Parameters<MongoDBCollection<T>['findOneAndReplace']>[2],
   ) => {
     const timestamp = new Date().toISOString()
@@ -97,7 +90,7 @@ export class Collection<T extends Record<string, ZodType>> {
   }
 
   insertOne = async (
-    document: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>,
+    document: Omit<T, '_id' | 'createdAt' | 'updatedAt'>,
   ) => {
     const timestamp = new Date().toISOString()
 
@@ -113,7 +106,7 @@ export class Collection<T extends Record<string, ZodType>> {
   }
 
   insertMany = async (
-    ...documents: Omit<Infer<T>, '_id' | 'createdAt' | 'updatedAt'>[]
+    ...documents: Omit<T, '_id' | 'createdAt' | 'updatedAt'>[]
   ) => {
     const timestamp = new Date().toISOString()
 

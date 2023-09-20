@@ -1,5 +1,4 @@
 import * as Realm from 'realm-web'
-import { ZodType } from 'zod'
 import { Collection } from './collection'
 import { Database } from './types'
 
@@ -31,7 +30,7 @@ export class Suricate {
     return this.#d
   }
 
-  collection = <T extends Record<string, ZodType>>(
+  collection = <T extends Record<string, unknown>>(
     collectionName: string,
   ) => {
     return new Collection<T>(
