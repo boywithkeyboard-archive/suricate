@@ -18,6 +18,12 @@ export class Collection<T extends Record<string, unknown>> {
     return db.collection(this.#name)
   }
 
+  aggregate = async (
+    stages: Parameters<MongoDBCollection<T>['aggregate']>[0],
+  ) => {
+    return await (await this.#col()).aggregate(stages)
+  }
+
   count = async (
     filter: Filter<T>,
     options?: Parameters<MongoDBCollection<T>['count']>[1],
